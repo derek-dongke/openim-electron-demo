@@ -8,8 +8,10 @@ import { useLogin, useSendSms } from "@/api/login";
 import login_pc from "@/assets/images/login/login_pc.png";
 import login_qr from "@/assets/images/login/login_qr.png";
 import {
+  getAccount,
   getEmail,
   getPhoneNumber,
+  setAccount,
   setAreaCode,
   setEmail,
   setIMProfile,
@@ -20,7 +22,6 @@ import { areaCode } from "./areaCode";
 import type { FormType } from "./index";
 import styles from "./index.module.scss";
 
-// 0login 1resetPassword 2register
 enum LoginType {
   Password,
   VerifyCode,
@@ -28,8 +29,8 @@ enum LoginType {
 
 type LoginFormProps = {
   setFormType: (type: FormType) => void;
-  loginMethod: "phone" | "email";
-  updateLoginMethod: (method: "phone" | "email") => void;
+  loginMethod: "phone" | "email" | "account";
+  updateLoginMethod: (method: "phone" | "email" | "account") => void;
 };
 
 const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormProps) => {
@@ -45,6 +46,11 @@ const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormPro
     if (params.email) {
       setEmail(params.email);
     }
+    if (params.account) {
+      setAccount(params.account);
+      params.areaCode = "+86";
+      params.phoneNumber = "0";
+    }
     params.password = md5(params.password);
     login(params, {
       onSuccess: (data) => {
@@ -56,7 +62,7 @@ const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormPro
   };
 
   const onLoginMethodChange = (key: string) => {
-    updateLoginMethod(key as "phone" | "email");
+    updateLoginMethod(key as "phone" | "email" | "account");
   };
 
   return (
@@ -70,6 +76,7 @@ const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormPro
         items={[
           { key: "phone", label: t("placeholder.phoneNumber") },
           { key: "email", label: t("placeholder.email") },
+          { key: "account", label: t("placeholder.account") },
         ]}
         onChange={onLoginMethodChange}
       />
@@ -83,6 +90,7 @@ const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormPro
           areaCode: "+86",
           phoneNumber: getPhoneNumber() ?? "",
           email: getEmail() ?? "",
+          account: getAccount() ?? "",
         }}
       >
         {loginMethod === "phone" ? (
@@ -96,7 +104,7 @@ const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormPro
               </Form.Item>
             </Space.Compact>
           </Form.Item>
-        ) : (
+        ) : loginMethod === "email" ? (
           <Form.Item
             label={t("placeholder.email")}
             name="email"
@@ -104,6 +112,16 @@ const LoginForm = ({ loginMethod, setFormType, updateLoginMethod }: LoginFormPro
           >
             <Input allowClear placeholder={t("toast.inputEmail")} />
           </Form.Item>
+        ) : loginMethod === "account" ? (
+          <Form.Item
+            label={t("placeholder.account")}
+            name="account"
+            rules={[{ type: "string", message: t("toast.inputAccount") }]}
+          >
+            <Input allowClear placeholder={t("toast.inputAccount")} />
+          </Form.Item>
+        ) : (
+          <div>{t("message.unknownLoginMethod")}</div>
         )}
 
         <Form.Item label={t("placeholder.password")} name="password">

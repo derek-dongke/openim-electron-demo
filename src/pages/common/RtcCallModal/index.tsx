@@ -105,6 +105,7 @@ const RtcCallModal: ForwardRefRenderFunction<
   };
 
   const connectRtc = useCallback((data?: AuthData) => {
+    debugger
     if (data) {
       setAuthData(data);
     }

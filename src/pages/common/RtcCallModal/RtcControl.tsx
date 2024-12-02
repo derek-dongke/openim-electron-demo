@@ -56,6 +56,7 @@ export const RtcControl = ({
 
   useEffect(() => {
     const acceptHandler = async ({ roomID }: RtcInvite) => {
+      debugger
       if (invitation.roomID !== roomID) return;
       const { data } = await getRtcConnectData(
         roomID,
@@ -89,6 +90,7 @@ export const RtcControl = ({
 
     const newMessageHandler = ({ data }: WSEvent<MessageItem[]>) => {
       data.map((message) => {
+        debugger
         if (message.contentType === MessageType.CustomMessage) {
           const customData = JSON.parse(message.customElem!.data) as {
             data: RtcInvite;
@@ -130,6 +132,7 @@ export const RtcControl = ({
   };
 
   const acceptInvitation = async () => {
+    debugger
     try {
       await sendCustomSignal(recvID, CustomType.CallingAccept);
       const { data } = await getRtcConnectData(
